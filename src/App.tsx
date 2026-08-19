@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { fetchDayPrices, PriceUnavailableError } from "./features/prices/api";
-import type { DayPrices } from "./features/prices/types";
 import { priceLevel } from "./features/prices/utils";
 import { formatOre } from "./lib/format";
 import { osloHourLabel, osloToday } from "./lib/time";
@@ -11,27 +10,28 @@ const LEVEL_CLASS = {
   expensive: "text-expensive",
 } as const;
 
+function errorMessage(error: Error): string {
+  if (error instanceof PriceUnavailableError) {
+    return error.reason === "not-published"
+      ? "Today's prices aren't published yet."
+      : "No price data available for this date.";
+  }
+  return error.message;
+}
+
 export default function App() {
-  const [prices, setPrices] = useState<DayPrices>([]);
-  const [error, setError] = useState<string | null>(null);
+  const today = osloToday();
+  const {
+    data: prices = [],
+    error,
+    isPending,
+  } = useQuery({
+    queryKey: ["prices", "NO5", today],
+    queryFn: () => fetchDayPrices(today, "NO5"),
+  });
 
-  useEffect(() => {
-    fetchDayPrices(osloToday(), "NO5")
-      .then(setPrices)
-      .catch((e: unknown) => {
-        if (e instanceof PriceUnavailableError) {
-          setError(
-            e.reason === "not-published"
-              ? "Today's prices aren't published yet."
-              : "No price data available for this date.",
-          );
-        } else {
-          setError(String(e));
-        }
-      });
-  }, []);
-
-  if (error) return <p className="p-8 text-expensive text-sm">{error}</p>;
+  if (isPending) return <p className="p-8 text-sm">Loading prices…</p>;
+  if (error) return <p className="p-8 text-expensive text-sm">{errorMessage(error)}</p>;
 
   return (
     <div className="p-8">
