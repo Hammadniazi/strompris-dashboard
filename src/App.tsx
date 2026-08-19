@@ -1,18 +1,37 @@
 import { useEffect, useState } from "react";
-import { fetchDayPrices } from "./features/prices/api";
+import { fetchDayPrices, PriceUnavailableError } from "./features/prices/api";
 import type { DayPrices } from "./features/prices/types";
+import { priceLevel } from "./features/prices/utils";
+import { formatOre } from "./lib/format";
+import { osloHourLabel, osloToday } from "./lib/time";
+
+const LEVEL_CLASS = {
+  cheap: "text-cheap",
+  normal: "text-normal",
+  expensive: "text-expensive",
+} as const;
 
 export default function App() {
   const [prices, setPrices] = useState<DayPrices>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchDayPrices("2026-08-14", "NO5")
+    fetchDayPrices(osloToday(), "NO5")
       .then(setPrices)
-      .catch((e) => setError(String(e)));
+      .catch((e: unknown) => {
+        if (e instanceof PriceUnavailableError) {
+          setError(
+            e.reason === "not-published"
+              ? "Today's prices aren't published yet."
+              : "No price data available for this date.",
+          );
+        } else {
+          setError(String(e));
+        }
+      });
   }, []);
 
-  if (error) return <pre className="p-8 text-red-600 text-xs">{error}</pre>;
+  if (error) return <p className="p-8 text-expensive text-sm">{error}</p>;
 
   return (
     <div className="p-8">
@@ -21,10 +40,12 @@ export default function App() {
         {prices.map((p) => (
           <li key={p.time_start} className="flex gap-4 border-b py-1">
             <span className="w-16 tabular-nums">
-              {p.time_start.slice(11, 16)}
+              {osloHourLabel(p.time_start)}
             </span>
-            <span className="tabular-nums">
-              {(p.NOK_per_kWh * 100).toFixed(1)} øre
+            <span
+              className={`tabular-nums ${LEVEL_CLASS[priceLevel(p.NOK_per_kWh, prices)]}`}
+            >
+              {formatOre(p.NOK_per_kWh)}
             </span>
           </li>
         ))}
