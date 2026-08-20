@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { fetchDayPrices, PriceUnavailableError } from "./features/prices/api";
 import type { CostSettings } from "./features/prices/utils";
-import { effectivePrice, priceLevel } from "./features/prices/utils";
+import { cheapestWindow, effectivePrice, priceLevel } from "./features/prices/utils";
 import { formatOre } from "./lib/format";
 import { osloHourLabel, osloToday } from "./lib/time";
 
@@ -31,6 +31,7 @@ function errorMessage(error: Error): string {
 export default function App() {
   const today = osloToday();
   const [settings, setSettings] = useState<CostSettings>(DEFAULT_SETTINGS);
+  const [hours, setHours] = useState(3);
   const {
     data: prices = [],
     error,
@@ -39,6 +40,11 @@ export default function App() {
     queryKey: ["prices", "NO5", today],
     queryFn: () => fetchDayPrices(today, "NO5"),
   });
+
+  const window = useMemo(
+    () => cheapestWindow(prices, hours),
+    [prices, hours],
+  );
 
   if (isPending) return <p className="p-8 text-sm">Loading prices…</p>;
   if (error) return <p className="p-8 text-expensive text-sm">{errorMessage(error)}</p>;
@@ -84,11 +90,49 @@ export default function App() {
             }
           />
         </label>
+        <label className="flex items-center gap-2">
+          Run for
+          <input
+            type="number"
+            min={1}
+            max={prices.length}
+            className="w-14 border-b"
+            value={hours}
+            onChange={(e) => setHours(Number(e.target.value))}
+          />
+          hours
+        </label>
       </fieldset>
 
+      {window &&
+        (() => {
+          const start = prices[window.startIndex];
+          const end =
+            prices[window.startIndex + hours - 1]?.time_end ?? start?.time_end;
+          if (!start || !end) return null;
+          return (
+            <p className="mt-4 text-sm">
+              Cheapest {hours}-hour window:{" "}
+              <span className="text-cheap font-medium">
+                {osloHourLabel(start.time_start)}–{osloHourLabel(end)}
+              </span>{" "}
+              (avg spot {formatOre(window.avgPrice)})
+            </p>
+          );
+        })()}
+
       <ul className="mt-4">
-        {prices.map((p) => (
-          <li key={p.time_start} className="flex gap-4 border-b py-1">
+        {prices.map((p, i) => (
+          <li
+            key={p.time_start}
+            className={`flex gap-4 border-b py-1 ${
+              window &&
+              i >= window.startIndex &&
+              i < window.startIndex + hours
+                ? "bg-cheap/10"
+                : ""
+            }`}
+          >
             <span className="w-16 tabular-nums">
               {osloHourLabel(p.time_start)}
             </span>
