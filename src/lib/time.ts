@@ -13,6 +13,11 @@ export function osloToday(now = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: OSLO_TZ }).format(now);
 }
 
+/** Tomorrow in Oslo as 'YYYY-MM-DD'. */
+export function osloTomorrow(now = new Date()): string {
+  return osloToday(new Date(now.getTime() + 24 * 60 * 60 * 1000));
+}
+
 /** Tomorrow's prices publish ~13:00 Oslo time. */
 export function tomorrowIsPublished(now = new Date()): boolean {
   const hour = Number(

@@ -5,7 +5,12 @@ import { PRICE_ZONES, ZONE_META, type PriceZone } from "./features/prices/types"
 import type { CostSettings } from "./features/prices/utils";
 import { cheapestWindow, effectivePrice, priceLevel } from "./features/prices/utils";
 import { formatOre } from "./lib/format";
-import { osloHourLabel, osloToday } from "./lib/time";
+import {
+  osloHourLabel,
+  osloToday,
+  osloTomorrow,
+  tomorrowIsPublished,
+} from "./lib/time";
 
 const LEVEL_CLASS = {
   cheap: "text-cheap",
@@ -23,7 +28,7 @@ const DEFAULT_SETTINGS: CostSettings = {
 function errorMessage(error: Error): string {
   if (error instanceof PriceUnavailableError) {
     return error.reason === "not-published"
-      ? "Today's prices aren't published yet."
+      ? "Prices for this day aren't published yet."
       : "No price data available for this date.";
   }
   return error.message;
@@ -31,16 +36,19 @@ function errorMessage(error: Error): string {
 
 export default function App() {
   const today = osloToday();
+  const tomorrow = osloTomorrow();
   const [zone, setZone] = useState<PriceZone>("NO5");
+  const [day, setDay] = useState<"today" | "tomorrow">("today");
   const [settings, setSettings] = useState<CostSettings>(DEFAULT_SETTINGS);
   const [hours, setHours] = useState(3);
+  const date = day === "today" ? today : tomorrow;
   const {
     data: prices = [],
     error,
     isPending,
   } = useQuery({
-    queryKey: ["prices", zone, today],
-    queryFn: () => fetchDayPrices(today, zone),
+    queryKey: ["prices", zone, date],
+    queryFn: () => fetchDayPrices(date, zone),
   });
 
   const window = useMemo(
@@ -56,6 +64,31 @@ export default function App() {
       <h1 className="text-2xl font-medium">
         Strømpris {zone} ({ZONE_META[zone].city})
       </h1>
+
+      <div className="mt-4 flex gap-2 text-sm">
+        <button
+          type="button"
+          onClick={() => setDay("today")}
+          className={`border-b ${day === "today" ? "font-medium" : "opacity-60"}`}
+        >
+          Today
+        </button>
+        <button
+          type="button"
+          disabled={!tomorrowIsPublished()}
+          onClick={() => setDay("tomorrow")}
+          title={
+            tomorrowIsPublished()
+              ? undefined
+              : "Tomorrow's prices publish ~13:00 Oslo time"
+          }
+          className={`border-b disabled:cursor-not-allowed disabled:opacity-30 ${
+            day === "tomorrow" ? "font-medium" : "opacity-60"
+          }`}
+        >
+          Tomorrow
+        </button>
+      </div>
 
       <fieldset className="mt-4 flex flex-wrap items-center gap-4 text-sm">
         <legend className="sr-only">Cost settings</legend>
