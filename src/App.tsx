@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { fetchDayPrices, PriceUnavailableError } from "./features/prices/api";
+import { PRICE_ZONES, ZONE_META, type PriceZone } from "./features/prices/types";
 import type { CostSettings } from "./features/prices/utils";
 import { cheapestWindow, effectivePrice, priceLevel } from "./features/prices/utils";
 import { formatOre } from "./lib/format";
@@ -30,6 +31,7 @@ function errorMessage(error: Error): string {
 
 export default function App() {
   const today = osloToday();
+  const [zone, setZone] = useState<PriceZone>("NO5");
   const [settings, setSettings] = useState<CostSettings>(DEFAULT_SETTINGS);
   const [hours, setHours] = useState(3);
   const {
@@ -37,8 +39,8 @@ export default function App() {
     error,
     isPending,
   } = useQuery({
-    queryKey: ["prices", "NO5", today],
-    queryFn: () => fetchDayPrices(today, "NO5"),
+    queryKey: ["prices", zone, today],
+    queryFn: () => fetchDayPrices(today, zone),
   });
 
   const window = useMemo(
@@ -51,10 +53,26 @@ export default function App() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-medium">Strømpris NO5</h1>
+      <h1 className="text-2xl font-medium">
+        Strømpris {zone} ({ZONE_META[zone].city})
+      </h1>
 
       <fieldset className="mt-4 flex flex-wrap items-center gap-4 text-sm">
         <legend className="sr-only">Cost settings</legend>
+        <label className="flex items-center gap-2">
+          Zone
+          <select
+            className="border-b"
+            value={zone}
+            onChange={(e) => setZone(e.target.value as PriceZone)}
+          >
+            {PRICE_ZONES.map((z) => (
+              <option key={z} value={z}>
+                {z} — {ZONE_META[z].city}
+              </option>
+            ))}
+          </select>
+        </label>
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -139,7 +157,7 @@ export default function App() {
             <span
               className={`w-24 tabular-nums ${LEVEL_CLASS[priceLevel(p.NOK_per_kWh, prices)]}`}
             >
-              {formatOre(effectivePrice(p, "NO5", settings))}
+              {formatOre(effectivePrice(p, zone, settings))}
             </span>
             <span className="tabular-nums text-sm opacity-60">
               spot {formatOre(p.NOK_per_kWh)}
