@@ -4,7 +4,7 @@ import { fetchDayPrices, PriceUnavailableError } from "./features/prices/api";
 import { PRICE_ZONES, ZONE_META, type PriceZone } from "./features/prices/types";
 import type { CostSettings } from "./features/prices/utils";
 import { cheapestWindow, effectivePrice, priceLevel } from "./features/prices/utils";
-import { formatOre } from "./lib/format";
+import { formatNok, formatOre } from "./lib/format";
 import {
   osloHourLabel,
   osloToday,
@@ -55,6 +55,15 @@ export default function App() {
     () => cheapestWindow(prices, hours),
     [prices, hours],
   );
+
+  const avgEffective = useMemo(() => {
+    if (prices.length === 0) return null;
+    const sum = prices.reduce(
+      (total, p) => total + effectivePrice(p, zone, settings),
+      0,
+    );
+    return sum / prices.length;
+  }, [prices, zone, settings]);
 
   if (isPending) return <p className="p-8 text-sm">Loading prices…</p>;
   if (error) return <p className="p-8 text-expensive text-sm">{errorMessage(error)}</p>;
@@ -154,6 +163,13 @@ export default function App() {
           hours
         </label>
       </fieldset>
+
+      {avgEffective !== null && (
+        <p className="mt-4 text-sm">
+          Average {day}:{" "}
+          <span className="font-medium">{formatNok(avgEffective)}/kWh</span>
+        </p>
+      )}
 
       {window &&
         (() => {
