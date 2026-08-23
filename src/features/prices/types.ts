@@ -1,6 +1,7 @@
 import { z } from "zod";
 export const PRICE_ZONES = ["NO1", "NO2", "NO3", "NO4", "NO5"] as const;
 export type PriceZone = (typeof PRICE_ZONES)[number];
+export const priceZoneSchema = z.enum(PRICE_ZONES);
 
 export const ZONE_META: Record<
   PriceZone,

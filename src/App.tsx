@@ -1,9 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
+import { z } from "zod";
 import { fetchDayPrices, PriceUnavailableError } from "./features/prices/api";
-import { PRICE_ZONES, ZONE_META, type PriceZone } from "./features/prices/types";
+import {
+  PRICE_ZONES,
+  priceZoneSchema,
+  ZONE_META,
+  type PriceZone,
+} from "./features/prices/types";
 import type { CostSettings } from "./features/prices/utils";
-import { cheapestWindow, effectivePrice, priceLevel } from "./features/prices/utils";
+import {
+  cheapestWindow,
+  costSettingsSchema,
+  effectivePrice,
+  priceLevel,
+} from "./features/prices/utils";
 import { formatNok, formatOre } from "./lib/format";
 import {
   osloHourLabel,
@@ -11,6 +22,9 @@ import {
   osloTomorrow,
   tomorrowIsPublished,
 } from "./lib/time";
+import { usePersistedState } from "./lib/usePersistedState";
+
+const hoursSchema = z.number().int().positive();
 
 const LEVEL_CLASS = {
   cheap: "text-cheap",
@@ -37,10 +51,22 @@ function errorMessage(error: Error): string {
 export default function App() {
   const today = osloToday();
   const tomorrow = osloTomorrow();
-  const [zone, setZone] = useState<PriceZone>("NO5");
+  const [zone, setZone] = usePersistedState(
+    "strompris.zone",
+    priceZoneSchema,
+    "NO5",
+  );
   const [day, setDay] = useState<"today" | "tomorrow">("today");
-  const [settings, setSettings] = useState<CostSettings>(DEFAULT_SETTINGS);
-  const [hours, setHours] = useState(3);
+  const [settings, setSettings] = usePersistedState(
+    "strompris.settings",
+    costSettingsSchema,
+    DEFAULT_SETTINGS,
+  );
+  const [hours, setHours] = usePersistedState(
+    "strompris.hours",
+    hoursSchema,
+    3,
+  );
   const date = day === "today" ? today : tomorrow;
   const {
     data: prices = [],
