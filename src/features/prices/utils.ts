@@ -1,10 +1,13 @@
+import { z } from "zod";
 import { ZONE_META, type HourlyPrice, type PriceZone } from "./types";
 
-export interface CostSettings {
-  includeVat: boolean;
-  paslagOre: number; // supplier markup, øre/kWh
-  nettleieOre: number; // grid rent, øre/kWh
-}
+export const costSettingsSchema = z.object({
+  includeVat: z.boolean(),
+  paslagOre: z.number(),
+  nettleieOre: z.number(),
+});
+
+export type CostSettings = z.infer<typeof costSettingsSchema>;
 
 /** Spot price → what the customer actually pays, NOK/kWh. */
 export function effectivePrice(
