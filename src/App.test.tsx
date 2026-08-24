@@ -48,7 +48,7 @@ function renderApp() {
 describe("App", () => {
   it("shows a loading state, then renders fetched spot prices", async () => {
     renderApp();
-    expect(screen.getByText(/loading/i)).toBeDefined();
+    expect(screen.getByText(/fetching/i)).toBeDefined();
 
     expect(await screen.findByText("spot 140 øre")).toBeDefined();
     expect(screen.getByText("spot 150 øre")).toBeDefined();
@@ -60,15 +60,11 @@ describe("App", () => {
     await screen.findByText("spot 140 øre");
 
     const user = userEvent.setup();
-    await user.selectOptions(
-      screen.getByLabelText(/zone/i),
-      "NO1 — Oslo",
-    );
+    const zoneSelect = screen.getByLabelText(/zone/i) as HTMLSelectElement;
+    await user.selectOptions(zoneSelect, "NO1 — Oslo");
 
     expect(await screen.findByText("spot 200 øre")).toBeDefined();
-    expect(
-      screen.getByRole("heading", { name: /NO1 \(Oslo\)/ }),
-    ).toBeDefined();
+    expect(zoneSelect.value).toBe("NO1");
   });
 
   it("recalculates the effective price when markup changes", async () => {
@@ -79,6 +75,7 @@ describe("App", () => {
     expect(screen.getByText("220 øre")).toBeDefined();
 
     const user = userEvent.setup();
+    await user.click(screen.getByText("Settings"));
     const markupInput = screen.getByLabelText(/markup/i);
     await user.clear(markupInput);
     await user.type(markupInput, "10");
