@@ -38,17 +38,38 @@ export function cheapestWindow(
   return { startIndex: best.startIndex, avgPrice: best.sum / hours };
 }
 
+/** Index of the hour `now` falls in, or null if `prices` doesn't cover it. */
+export function currentPriceIndex(
+  prices: readonly HourlyPrice[],
+  now = new Date(),
+): number | null {
+  const t = now.getTime();
+  const index = prices.findIndex(
+    (p) =>
+      t >= new Date(p.time_start).getTime() && t < new Date(p.time_end).getTime(),
+  );
+  return index === -1 ? null : index;
+}
+
 export type PriceLevel = "cheap" | "normal" | "expensive";
+
+/** Where `price` sits within the day's own min–max range, as 0–1. */
+export function pricePercent(
+  price: number,
+  all: readonly HourlyPrice[],
+): number {
+  const values = all.map((p) => p.NOK_per_kWh);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  if (max === min) return 0.5;
+  return (price - min) / (max - min);
+}
 
 /** Relative to the day's own range — a 2 kr day and a 0.2 kr day both read sensibly. */
 export function priceLevel(
   price: number,
   all: readonly HourlyPrice[],
 ): PriceLevel {
-  const values = all.map((p) => p.NOK_per_kWh);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  if (max === min) return "normal";
-  const pct = (price - min) / (max - min);
+  const pct = pricePercent(price, all);
   return pct < 0.33 ? "cheap" : pct < 0.66 ? "normal" : "expensive";
 }

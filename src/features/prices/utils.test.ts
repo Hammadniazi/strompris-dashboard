@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { HourlyPrice } from "./types";
-import { cheapestWindow, effectivePrice, priceLevel } from "./utils";
+import {
+  cheapestWindow,
+  currentPriceIndex,
+  effectivePrice,
+  priceLevel,
+  pricePercent,
+} from "./utils";
 
 function makePrice(hour: number, nokPerKwh: number): HourlyPrice {
   const h = String(hour).padStart(2, "0");
@@ -79,5 +85,35 @@ describe("priceLevel", () => {
   it("treats a flat day (no range) as normal", () => {
     const flat = [2, 2, 2].map((v, i) => makePrice(i, v));
     expect(priceLevel(2, flat)).toBe("normal");
+  });
+});
+
+describe("pricePercent", () => {
+  const prices = [1, 2, 3].map((v, i) => makePrice(i, v));
+
+  it("returns 0 at the day's minimum and 1 at its maximum", () => {
+    expect(pricePercent(1, prices)).toBeCloseTo(0);
+    expect(pricePercent(3, prices)).toBeCloseTo(1);
+  });
+
+  it("returns 0.5 for a flat day", () => {
+    const flat = [2, 2, 2].map((v, i) => makePrice(i, v));
+    expect(pricePercent(2, flat)).toBe(0.5);
+  });
+});
+
+describe("currentPriceIndex", () => {
+  const prices = [1, 2, 3].map((v, i) => makePrice(i, v));
+
+  it("finds the hour that contains `now`", () => {
+    expect(
+      currentPriceIndex(prices, new Date("2026-01-01T01:30:00+01:00")),
+    ).toBe(1);
+  });
+
+  it("returns null when `now` falls outside every hour", () => {
+    expect(
+      currentPriceIndex(prices, new Date("2027-01-01T00:00:00+01:00")),
+    ).toBeNull();
   });
 });
