@@ -3,11 +3,11 @@ import type { HourlyPrice } from "../features/prices/types";
 import { priceLevel, type PriceLevel } from "../features/prices/utils";
 import { osloHourLabel } from "../lib/time";
 
-const SIZE = 220;
+const SIZE = 330;
 const CENTER = SIZE / 2;
-const R_INNER = 62;
-const R_OUTER = 100;
-const GAP_DEG = 1.6;
+const R_INNER = 90;
+const R_OUTER = 148;
+const GAP_DEG = 1.4;
 
 const LEVEL_FILL: Record<PriceLevel, string> = {
   cheap: "var(--color-cheap)",
@@ -124,7 +124,12 @@ export function PriceGauge({
         )}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        {children}
+        <div
+          className="flex flex-col items-center"
+          style={{ maxWidth: R_INNER * 2 - 24 }}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );

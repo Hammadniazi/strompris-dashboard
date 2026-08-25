@@ -58,7 +58,7 @@ function errorMessage(error: Error): string {
 }
 
 const inputClass =
-  "rounded-md border border-fjord-700 bg-fjord-950 px-2 py-1 font-mono text-sm text-frost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cheap/50";
+  "h-11 rounded-md border border-fjord-700 bg-fjord-950 px-3 font-mono text-sm text-frost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cheap/50";
 
 export default function App() {
   const today = osloToday();
@@ -141,7 +141,7 @@ export default function App() {
                   ? "Tomorrow's prices publish ~13:00 Oslo time"
                   : undefined
               }
-              className={`rounded-full px-3 py-1 capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cheap/50 disabled:cursor-not-allowed disabled:opacity-30 ${
+              className={`flex h-9 items-center justify-center rounded-full px-4 capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cheap/50 disabled:cursor-not-allowed disabled:opacity-30 ${
                 day === d
                   ? "bg-fjord-700 text-frost"
                   : "text-mist hover:text-frost"
@@ -161,10 +161,10 @@ export default function App() {
         >
           {nowPrice ? (
             <>
-              <span className="font-mono text-3xl font-medium text-frost">
+              <span className="font-mono text-2xl font-medium whitespace-nowrap text-frost sm:text-[1.75rem]">
                 {formatOre(effectivePrice(nowPrice, zone, settings))}
               </span>
-              <span className="mt-1 text-xs tracking-wide text-mist uppercase">
+              <span className="mt-1.5 text-xs tracking-wide text-mist uppercase">
                 now
               </span>
             </>
@@ -173,7 +173,7 @@ export default function App() {
               <span className="font-display text-2xl font-semibold text-frost">
                 {zone}
               </span>
-              <span className="mt-1 text-xs tracking-wide text-mist uppercase">
+              <span className="mt-1.5 text-xs tracking-wide text-mist uppercase">
                 {ZONE_META[zone].city}
               </span>
             </>
@@ -188,7 +188,7 @@ export default function App() {
             <div className="relative">
               <select
                 aria-label="Zone"
-                className="appearance-none rounded-md border border-fjord-700 bg-fjord-850 py-1.5 pr-8 pl-3 text-sm text-frost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cheap/50"
+                className="h-11 appearance-none rounded-md border border-fjord-700 bg-fjord-850 pr-9 pl-3 text-sm text-frost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cheap/50"
                 value={zone}
                 onChange={(e) => setZone(e.target.value as PriceZone)}
               >
@@ -200,7 +200,7 @@ export default function App() {
               </select>
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-xs text-mist"
+                className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-xs text-mist"
               >
                 ▾
               </span>
