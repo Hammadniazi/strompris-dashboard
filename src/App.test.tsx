@@ -83,4 +83,44 @@ describe("App", () => {
     // 1.4 * 1.25 + 0.10 + 0.45 = 230 øre.
     expect(await screen.findByText("230 øre")).toBeDefined();
   });
+
+  it("shows a friendly message instead of raw JSON when the API response doesn't match the expected shape", async () => {
+    server.use(
+      http.get(
+        /\/api\/v1\/prices\/\d{4}\/\d{2}-\d{2}_(\w+)\.json$/,
+        () => HttpResponse.json([{ NOK_per_kWh: "not-a-number" }]),
+      ),
+    );
+    renderApp();
+
+    expect(
+      await screen.findByText("Received unexpected data from the price API."),
+    ).toBeDefined();
+    expect(screen.queryByText(/invalid_type/)).toBeNull();
+  });
+
+  it("keeps the Window control visible and shows guidance when hours exceeds the day's length", async () => {
+    localStorage.setItem("strompris.hours", "5");
+    renderApp();
+    await screen.findByText("spot 140 øre");
+
+    // Fixture day is only 3 hours long, so a persisted 5-hour window is invalid.
+    expect(
+      screen.getByText("Enter a number of hours between 1 and 3."),
+    ).toBeDefined();
+    expect(screen.getByLabelText(/window/i)).toBeDefined();
+  });
+
+  it("clamps the Window input to at least 1 hour instead of letting it go blank", async () => {
+    renderApp();
+    await screen.findByText("spot 140 øre");
+
+    const user = userEvent.setup();
+    const windowInput = screen.getByLabelText(/window/i) as HTMLInputElement;
+    await user.clear(windowInput);
+
+    // Clearing the field (empty -> 0) clamps to 1 instead of vanishing.
+    expect(windowInput.value).toBe("1");
+    expect(screen.getByText(/cheapest window/i)).toBeDefined();
+  });
 });

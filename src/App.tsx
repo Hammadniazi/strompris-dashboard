@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import { PriceGauge } from "./components/PriceGauge";
 import { fetchDayPrices, PriceUnavailableError } from "./features/prices/api";
 import {
@@ -54,6 +54,9 @@ function errorMessage(error: Error): string {
       ? "Not published yet. Tomorrow's prices land around 13:00."
       : "No data available before December 2021.";
   }
+  if (error instanceof ZodError) {
+    return "Received unexpected data from the price API.";
+  }
   return `Couldn't load prices: ${error.message}`;
 }
 
@@ -91,6 +94,20 @@ export default function App() {
 
   const window = useMemo(() => cheapestWindow(prices, hours), [prices, hours]);
   const nowIndex = useMemo(() => currentPriceIndex(prices), [prices]);
+
+  const windowRange = useMemo(() => {
+    if (!window) return null;
+    const start = prices[window.startIndex];
+    const end =
+      prices[window.startIndex + hours - 1]?.time_end ?? start?.time_end;
+    if (!start || !end) return null;
+    return { start, end };
+  }, [window, prices, hours]);
+
+  function clampHours(raw: number): number {
+    if (!Number.isFinite(raw)) return 1;
+    return Math.min(Math.max(Math.trunc(raw), 1), Math.max(prices.length, 1));
+  }
 
   const avgEffective = useMemo(() => {
     if (prices.length === 0) return null;
@@ -218,42 +235,42 @@ export default function App() {
         </div>
       </section>
 
-      {window &&
-        (() => {
-          const start = prices[window.startIndex];
-          const end =
-            prices[window.startIndex + hours - 1]?.time_end ?? start?.time_end;
-          if (!start || !end) return null;
-          return (
-            <section className="mt-8 rounded-xl border border-cheap/30 bg-cheap/5 p-4 sm:p-5">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs tracking-wide text-cheap uppercase">
-                    Cheapest window
-                  </p>
-                  <p className="mt-1 font-mono text-lg font-medium text-frost">
-                    {osloHourLabel(start.time_start)}–{osloHourLabel(end)}
-                  </p>
-                  <p className="mt-0.5 text-sm text-mist">
-                    avg {formatOre(window.avgPrice)} spot
-                  </p>
-                </div>
-                <label className="flex items-center gap-2 text-sm text-mist">
-                  Window
-                  <input
-                    type="number"
-                    min={1}
-                    max={prices.length}
-                    className={`w-14 ${inputClass}`}
-                    value={hours}
-                    onChange={(e) => setHours(Number(e.target.value))}
-                  />
-                  hours
-                </label>
-              </div>
-            </section>
-          );
-        })()}
+      <section className="mt-8 rounded-xl border border-cheap/30 bg-cheap/5 p-4 sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-xs tracking-wide text-cheap uppercase">
+              Cheapest window
+            </p>
+            {windowRange && window ? (
+              <>
+                <p className="mt-1 font-mono text-lg font-medium text-frost">
+                  {osloHourLabel(windowRange.start.time_start)}–
+                  {osloHourLabel(windowRange.end)}
+                </p>
+                <p className="mt-0.5 text-sm text-mist">
+                  avg {formatOre(window.avgPrice)} spot
+                </p>
+              </>
+            ) : (
+              <p className="mt-1 text-sm text-mist">
+                Enter a number of hours between 1 and {prices.length}.
+              </p>
+            )}
+          </div>
+          <label className="flex items-center gap-2 text-sm text-mist">
+            Window
+            <input
+              type="number"
+              min={1}
+              max={prices.length}
+              className={`w-14 ${inputClass}`}
+              value={hours}
+              onChange={(e) => setHours(clampHours(Number(e.target.value)))}
+            />
+            hours
+          </label>
+        </div>
+      </section>
 
       <section className="mt-8 overflow-hidden rounded-xl border border-fjord-700 bg-fjord-850">
         <ul className="divide-y divide-fjord-700">
