@@ -318,7 +318,7 @@ export default function App() {
       </section>
 
       <details className="group mt-8 rounded-xl border border-fjord-700 bg-fjord-850">
-        <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-frost select-none sm:px-5 [&::-webkit-details-marker]:hidden">
+        <summary className="flex cursor-pointer list-none items-center justify-between rounded-t-xl px-4 py-3 text-sm font-medium text-frost select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cheap/50 sm:px-5 [&::-webkit-details-marker]:hidden">
           Settings
           <span className="text-mist transition-transform group-open:rotate-180">
             ▾
@@ -328,6 +328,7 @@ export default function App() {
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
+              className="rounded-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cheap/50"
               checked={settings.includeVat}
               onChange={(e) =>
                 setSettings((s) => ({ ...s, includeVat: e.target.checked }))

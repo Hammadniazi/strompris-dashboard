@@ -94,7 +94,10 @@ export function PriceGauge({
               fill={LEVEL_FILL[level]}
               opacity={isNow ? 1 : 0.62}
               className="gauge-arc"
-              style={{ animationDelay: `${i * 14}ms` }}
+              style={{
+                animationDelay: `${i * 14}ms`,
+                transformOrigin: `${CENTER}px ${CENTER}px`,
+              }}
             />
           );
         })}
