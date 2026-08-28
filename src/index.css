@@ -46,7 +46,8 @@ body {
 }
 
 .gauge-arc {
-  transform-origin: 110px 110px;
+  /* transform-origin is set inline in PriceGauge.tsx, derived from its
+     own CENTER constant so it can't drift out of sync with the geometry. */
   animation: gauge-sweep 0.45s ease-out backwards;
 }
 
