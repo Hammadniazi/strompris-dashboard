@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import type { HourlyPrice } from "../features/prices/types";
+import type { HourlyPrice } from "@/features/prices/types";
 import { PriceGauge } from "./PriceGauge";
 
 function makeSequentialPrices(count: number): HourlyPrice[] {

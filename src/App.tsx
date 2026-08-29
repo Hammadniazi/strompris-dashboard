@@ -1,15 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { z, ZodError } from "zod";
-import { PriceGauge } from "./components/PriceGauge";
-import { fetchDayPrices, PriceUnavailableError } from "./features/prices/api";
+import { PriceGauge } from "@/components/PriceGauge";
+import { fetchDayPrices, PriceUnavailableError } from "@/features/prices/api";
 import {
   PRICE_ZONES,
   priceZoneSchema,
   ZONE_META,
   type PriceZone,
-} from "./features/prices/types";
-import type { CostSettings } from "./features/prices/utils";
+} from "@/features/prices/types";
+import type { CostSettings } from "@/features/prices/utils";
 import {
   cheapestWindow,
   costSettingsSchema,
@@ -17,15 +17,15 @@ import {
   effectivePrice,
   pricePercent,
   priceLevel,
-} from "./features/prices/utils";
-import { formatNok, formatOre } from "./lib/format";
+} from "@/features/prices/utils";
+import { formatNok, formatOre } from "@/lib/format";
 import {
   osloHourLabel,
   osloToday,
   osloTomorrow,
   tomorrowIsPublished,
-} from "./lib/time";
-import { usePersistedState } from "./lib/usePersistedState";
+} from "@/lib/time";
+import { usePersistedState } from "@/lib/usePersistedState";
 
 const hoursSchema = z.number().int().positive();
 
