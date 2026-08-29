@@ -19,6 +19,24 @@ function makePrice(hour: number, nokPerKwh: number): HourlyPrice {
   };
 }
 
+/** Sequential hourly prices, for days that aren't exactly 24 hours long. */
+function makeSequentialPrices(
+  count: number,
+  nokPerKwh: (i: number) => number,
+): HourlyPrice[] {
+  const base = Date.parse("2026-03-29T00:00:00Z");
+  return Array.from({ length: count }, (_, i) => {
+    const price = nokPerKwh(i);
+    return {
+      NOK_per_kWh: price,
+      EUR_per_kWh: price / 11,
+      EXR: 11,
+      time_start: new Date(base + i * 3_600_000).toISOString(),
+      time_end: new Date(base + (i + 1) * 3_600_000).toISOString(),
+    };
+  });
+}
+
 describe("effectivePrice", () => {
   it("adds VAT, markup, and grid rent to the spot price", () => {
     const price = makePrice(0, 1);
@@ -68,6 +86,22 @@ describe("cheapestWindow", () => {
   it("returns null for zero or negative hours", () => {
     expect(cheapestWindow(prices, 0)).toBeNull();
     expect(cheapestWindow(prices, -1)).toBeNull();
+  });
+
+  it("handles a 23-hour spring-forward DST day", () => {
+    const dstPrices = makeSequentialPrices(23, (i) => (i === 10 ? 1 : 5));
+    expect(dstPrices).toHaveLength(23);
+    const window = cheapestWindow(dstPrices, 1);
+    expect(window?.startIndex).toBe(10);
+    expect(window?.avgPrice).toBeCloseTo(1);
+  });
+
+  it("handles a 25-hour fall-back DST day", () => {
+    const dstPrices = makeSequentialPrices(25, (i) => (i === 24 ? 1 : 5));
+    expect(dstPrices).toHaveLength(25);
+    const window = cheapestWindow(dstPrices, 1);
+    expect(window?.startIndex).toBe(24);
+    expect(window?.avgPrice).toBeCloseTo(1);
   });
 });
 

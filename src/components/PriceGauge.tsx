@@ -50,7 +50,7 @@ function arcPath(r: number, startDeg: number, endDeg: number) {
 export interface PriceGaugeProps {
   prices: readonly HourlyPrice[];
   currentIndex: number | null;
-  window: { startIndex: number; hours: number } | null;
+  bestWindow: { startIndex: number; hours: number } | null;
   children?: ReactNode;
 }
 
@@ -58,7 +58,7 @@ export interface PriceGaugeProps {
 export function PriceGauge({
   prices,
   currentIndex,
-  window,
+  bestWindow,
   children,
 }: PriceGaugeProps) {
   const n = prices.length;
@@ -101,12 +101,12 @@ export function PriceGauge({
             />
           );
         })}
-        {window && (
+        {bestWindow && (
           <path
             d={arcPath(
               R_OUTER + 7,
-              window.startIndex * step + GAP_DEG / 2,
-              (window.startIndex + window.hours) * step - GAP_DEG / 2,
+              bestWindow.startIndex * step + GAP_DEG / 2,
+              (bestWindow.startIndex + bestWindow.hours) * step - GAP_DEG / 2,
             )}
             stroke="var(--color-cheap)"
             strokeWidth={3}

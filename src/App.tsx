@@ -92,17 +92,20 @@ export default function App() {
     queryFn: () => fetchDayPrices(date, zone),
   });
 
-  const window = useMemo(() => cheapestWindow(prices, hours), [prices, hours]);
+  const bestWindow = useMemo(
+    () => cheapestWindow(prices, hours),
+    [prices, hours],
+  );
   const nowIndex = useMemo(() => currentPriceIndex(prices), [prices]);
 
   const windowRange = useMemo(() => {
-    if (!window) return null;
-    const start = prices[window.startIndex];
+    if (!bestWindow) return null;
+    const start = prices[bestWindow.startIndex];
     const end =
-      prices[window.startIndex + hours - 1]?.time_end ?? start?.time_end;
+      prices[bestWindow.startIndex + hours - 1]?.time_end ?? start?.time_end;
     if (!start || !end) return null;
     return { start, end };
-  }, [window, prices, hours]);
+  }, [bestWindow, prices, hours]);
 
   function clampHours(raw: number): number {
     if (!Number.isFinite(raw)) return 1;
@@ -174,7 +177,9 @@ export default function App() {
         <PriceGauge
           prices={prices}
           currentIndex={nowIndex}
-          window={window ? { startIndex: window.startIndex, hours } : null}
+          bestWindow={
+            bestWindow ? { startIndex: bestWindow.startIndex, hours } : null
+          }
         >
           {nowPrice ? (
             <>
@@ -241,14 +246,14 @@ export default function App() {
             <p className="text-xs tracking-wide text-cheap uppercase">
               Cheapest window
             </p>
-            {windowRange && window ? (
+            {windowRange && bestWindow ? (
               <>
                 <p className="mt-1 font-mono text-lg font-medium text-frost">
                   {osloHourLabel(windowRange.start.time_start)}–
                   {osloHourLabel(windowRange.end)}
                 </p>
                 <p className="mt-0.5 text-sm text-mist">
-                  avg {formatOre(window.avgPrice)} spot
+                  avg {formatOre(bestWindow.avgPrice)} spot
                 </p>
               </>
             ) : (
@@ -278,9 +283,9 @@ export default function App() {
             const level = priceLevel(p.NOK_per_kWh, prices);
             const isNow = i === nowIndex;
             const inWindow =
-              window !== null &&
-              i >= window.startIndex &&
-              i < window.startIndex + hours;
+              bestWindow !== null &&
+              i >= bestWindow.startIndex &&
+              i < bestWindow.startIndex + hours;
             return (
               <li
                 key={p.time_start}
