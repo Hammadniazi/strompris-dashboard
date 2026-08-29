@@ -60,7 +60,7 @@ describe("App", () => {
     await screen.findByText("spot 140 øre");
 
     const user = userEvent.setup();
-    const zoneSelect = screen.getByLabelText(/zone/i) as HTMLSelectElement;
+    const zoneSelect = screen.getByLabelText<HTMLSelectElement>(/zone/i);
     await user.selectOptions(zoneSelect, "NO1 — Oslo");
 
     expect(await screen.findByText("spot 200 øre")).toBeDefined();
@@ -116,7 +116,7 @@ describe("App", () => {
     await screen.findByText("spot 140 øre");
 
     const user = userEvent.setup();
-    const windowInput = screen.getByLabelText(/window/i) as HTMLInputElement;
+    const windowInput = screen.getByLabelText<HTMLInputElement>(/window/i);
     await user.clear(windowInput);
 
     // Clearing the field (empty -> 0) clamps to 1 instead of vanishing.

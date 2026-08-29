@@ -25,6 +25,6 @@ export async function fetchDayPrices(
   }
   if (!res.ok) throw new Error(`Price API failed: ${res.status}`);
 
-  const json = await res.json();
+  const json: unknown = await res.json();
   return dayPricesSchema.parse(json);
 }
