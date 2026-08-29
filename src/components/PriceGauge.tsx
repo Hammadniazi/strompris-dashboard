@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
-import type { HourlyPrice } from "../features/prices/types";
-import { priceLevel, type PriceLevel } from "../features/prices/utils";
-import { osloHourLabel } from "../lib/time";
+import type { HourlyPrice } from "@/features/prices/types";
+import { priceLevel, type PriceLevel } from "@/features/prices/utils";
+import { osloHourLabel } from "@/lib/time";
 
 const SIZE = 330;
 const CENTER = SIZE / 2;
