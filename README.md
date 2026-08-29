@@ -1,75 +1,43 @@
-# React + TypeScript + Vite
+# Strømpris
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A live electricity spot-price checker for Norway. Shows hourly prices for
+today (and tomorrow, once published) across all five price zones, what you
+actually pay after VAT, supplier markup, and grid rent, and the cheapest
+contiguous window to run an appliance.
 
-Currently, two official plugins are available:
+Data comes from the public [hvakosterstrommen.no](https://www.hvakosterstrommen.no/)
+API — no API key or backend required.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- Hourly spot prices for zones NO1–NO5, color-coded cheap/normal/expensive
+  relative to the day's own range
+- Effective price: spot + VAT (NO4 is VAT-exempt) + markup + grid rent,
+  adjustable in Settings
+- Cheapest N-hour window finder
+- Today/tomorrow toggle (tomorrow's prices publish ~13:00 Oslo time)
+- Zone, cost settings, and window length persist across visits
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Running it
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
+npm run dev       # start the dev server
+npm run build     # type-check and build for production
+npm run preview   # preview the production build locally
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Testing
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm run test         # unit/component tests, watch mode
+npm run test:run     # unit/component tests, single run
+npm run test:coverage
+npm run test:e2e     # Playwright, against a production build
+npm run lint
 ```
+
+## Stack
+
+Vite, React 19, TypeScript, Tailwind CSS v4, TanStack Query, Zod. Tests with
+Vitest, Testing Library, MSW, and Playwright.
