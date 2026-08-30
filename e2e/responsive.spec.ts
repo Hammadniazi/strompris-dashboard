@@ -60,7 +60,9 @@ for (const viewport of VIEWPORTS) {
       await expect(page.getByText(/cheapest window/i)).toBeVisible();
       await expect(page.getByLabel(/window/i)).toBeVisible();
       await expect(page.getByLabel(/using/i)).toBeVisible();
-      await expect(page.getByText("Settings")).toBeVisible();
+      await expect(
+        page.locator("summary", { hasText: "Settings" }),
+      ).toBeVisible();
 
       await page.screenshot({
         path: `test-results/responsive-${viewport.name.replace(/\s+/g, "-")}.png`,
@@ -76,7 +78,7 @@ for (const viewport of VIEWPORTS) {
       );
 
       await page.goto("/");
-      await page.getByText("Settings").click();
+      await page.locator("summary", { hasText: "Settings" }).click();
 
       await expect(page.getByLabel(/include vat/i)).toBeVisible();
       await expect(page.getByLabel(/markup/i)).toBeVisible();

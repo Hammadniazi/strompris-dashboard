@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { z, ZodError } from "zod";
 import { CheapestWindowCard } from "@/components/CheapestWindowCard";
 import { DayToggle } from "@/components/DayToggle";
+import { Footer } from "@/components/Footer";
 import { PriceGauge } from "@/components/PriceGauge";
 import { PriceLevelLegend } from "@/components/PriceLevelLegend";
 import { PriceList } from "@/components/PriceList";
@@ -149,82 +150,86 @@ export default function App() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-8 sm:px-8 sm:py-12">
-      <header className="flex flex-wrap items-baseline justify-between gap-4">
-        <h1 className="font-display text-2xl font-semibold tracking-tight text-frost sm:text-3xl">
-          Strømpris
-        </h1>
-        <DayToggle day={day} onChange={setDay} />
-      </header>
+    <div className="flex min-h-screen flex-col">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 sm:px-8 sm:py-12">
+        <header className="flex flex-wrap items-baseline justify-between gap-4">
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-frost sm:text-3xl">
+            Strømpris
+          </h1>
+          <DayToggle day={day} onChange={setDay} />
+        </header>
 
-      <section className="mt-10 flex flex-col items-center gap-8 sm:flex-row">
-        <PriceGauge
-          prices={prices}
-          currentIndex={nowIndex}
-          bestWindow={
-            bestWindow ? { startIndex: bestWindow.startIndex, hours } : null
+        <section className="mt-10 flex flex-col items-center gap-8 sm:flex-row">
+          <PriceGauge
+            prices={prices}
+            currentIndex={nowIndex}
+            bestWindow={
+              bestWindow ? { startIndex: bestWindow.startIndex, hours } : null
+            }
+          >
+            {nowEffective !== null ? (
+              <>
+                <span className="font-mono text-2xl font-medium whitespace-nowrap text-frost sm:text-[1.75rem]">
+                  {formatOre(nowEffective)}
+                </span>
+                <span className="mt-1.5 text-xs tracking-wide text-mist uppercase">
+                  now
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="font-display text-2xl font-semibold text-frost">
+                  {zone}
+                </span>
+                <span className="mt-1.5 text-xs tracking-wide text-mist uppercase">
+                  {ZONE_META[zone].city}
+                </span>
+              </>
+            )}
+          </PriceGauge>
+
+          <div className="w-full flex-1 space-y-4 text-center sm:text-left">
+            <ZonePicker zone={zone} onChange={setZone} />
+
+            {avgEffective !== null && (
+              <p className="text-sm text-mist">
+                Average {day}{" "}
+                <span className="font-mono font-medium text-frost">
+                  {formatNok(avgEffective)}/kWh
+                </span>
+              </p>
+            )}
+          </div>
+        </section>
+
+        <CheapestWindowCard
+          bestWindow={bestWindow}
+          windowRange={windowRange}
+          hours={hours}
+          onHoursChange={(raw) => setHours(clampHours(raw))}
+          maxHours={prices.length}
+          kwh={kwh}
+          onKwhChange={(raw) =>
+            setKwh(Number.isFinite(raw) && raw > 0 ? raw : 1)
           }
-        >
-          {nowEffective !== null ? (
-            <>
-              <span className="font-mono text-2xl font-medium whitespace-nowrap text-frost sm:text-[1.75rem]">
-                {formatOre(nowEffective)}
-              </span>
-              <span className="mt-1.5 text-xs tracking-wide text-mist uppercase">
-                now
-              </span>
-            </>
-          ) : (
-            <>
-              <span className="font-display text-2xl font-semibold text-frost">
-                {zone}
-              </span>
-              <span className="mt-1.5 text-xs tracking-wide text-mist uppercase">
-                {ZONE_META[zone].city}
-              </span>
-            </>
-          )}
-        </PriceGauge>
+          savings={savings}
+        />
 
-        <div className="w-full flex-1 space-y-4 text-center sm:text-left">
-          <ZonePicker zone={zone} onChange={setZone} />
+        <PriceLevelLegend />
 
-          {avgEffective !== null && (
-            <p className="text-sm text-mist">
-              Average {day}{" "}
-              <span className="font-mono font-medium text-frost">
-                {formatNok(avgEffective)}/kWh
-              </span>
-            </p>
-          )}
-        </div>
-      </section>
+        <PriceList
+          prices={prices}
+          zone={zone}
+          settings={settings}
+          nowIndex={nowIndex}
+          bestWindow={bestWindow}
+          hours={hours}
+        />
 
-      <CheapestWindowCard
-        bestWindow={bestWindow}
-        windowRange={windowRange}
-        hours={hours}
-        onHoursChange={(raw) => setHours(clampHours(raw))}
-        maxHours={prices.length}
-        kwh={kwh}
-        onKwhChange={(raw) =>
-          setKwh(Number.isFinite(raw) && raw > 0 ? raw : 1)
-        }
-        savings={savings}
-      />
+        <SettingsPanel settings={settings} onChange={setSettings} />
+      </main>
 
-      <PriceLevelLegend />
-
-      <PriceList
-        prices={prices}
-        zone={zone}
-        settings={settings}
-        nowIndex={nowIndex}
-        bestWindow={bestWindow}
-        hours={hours}
-      />
-
-      <SettingsPanel settings={settings} onChange={setSettings} />
-    </main>
+      <Footer />
+    </div>
   );
 }
