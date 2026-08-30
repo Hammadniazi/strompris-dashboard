@@ -28,6 +28,7 @@ export function PriceList({
 }: PriceListProps) {
   return (
     <section className="mt-8 overflow-hidden rounded-xl border border-fjord-700 bg-fjord-850">
+      <h2 className="sr-only">Hourly prices</h2>
       <ul className="divide-y divide-fjord-700">
         {prices.map((p, i) => {
           const level = priceLevel(p.NOK_per_kWh, prices);

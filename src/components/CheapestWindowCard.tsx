@@ -29,9 +29,9 @@ export function CheapestWindowCard({
     <section className="mt-8 rounded-xl border border-cheap/30 bg-cheap/5 p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-xs tracking-wide text-cheap uppercase">
+          <h2 className="text-xs tracking-wide text-cheap uppercase">
             Cheapest window
-          </p>
+          </h2>
           {windowRange && bestWindow ? (
             <>
               <p className="mt-1 font-mono text-lg font-medium text-frost">

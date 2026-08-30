@@ -4,6 +4,7 @@ import { z, ZodError } from "zod";
 import { CheapestWindowCard } from "@/components/CheapestWindowCard";
 import { DayToggle } from "@/components/DayToggle";
 import { PriceGauge } from "@/components/PriceGauge";
+import { PriceLevelLegend } from "@/components/PriceLevelLegend";
 import { PriceList } from "@/components/PriceList";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { ZonePicker } from "@/components/ZonePicker";
@@ -130,7 +131,7 @@ export default function App() {
   if (isPending) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl items-center justify-center px-4">
-        <p className="font-mono text-sm text-mist">
+        <p className="font-mono text-sm text-mist" role="status">
           Fetching {day}'s prices…
         </p>
       </main>
@@ -140,7 +141,7 @@ export default function App() {
   if (error) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl items-center justify-center px-4">
-        <p className="max-w-sm text-center text-sm text-expensive">
+        <p className="max-w-sm text-center text-sm text-expensive" role="alert">
           {errorMessage(error)}
         </p>
       </main>
@@ -211,6 +212,8 @@ export default function App() {
         }
         savings={savings}
       />
+
+      <PriceLevelLegend />
 
       <PriceList
         prices={prices}
