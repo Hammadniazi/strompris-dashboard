@@ -15,12 +15,14 @@ import {
   costSettingsSchema,
   currentPriceIndex,
   effectivePrice,
+  windowEffectiveAverage,
 } from "@/features/prices/utils";
 import { formatNok, formatOre } from "@/lib/format";
 import { osloToday, osloTomorrow } from "@/lib/time";
 import { usePersistedState } from "@/lib/usePersistedState";
 
 const hoursSchema = z.number().int().positive();
+const kwhSchema = z.number().positive();
 
 // Placeholder figures — nettleie varies by grid operator and time of day.
 const DEFAULT_SETTINGS: CostSettings = {
@@ -60,6 +62,7 @@ export default function App() {
     hoursSchema,
     3,
   );
+  const [kwh, setKwh] = usePersistedState("strompris.kwh", kwhSchema, 5);
   const date = day === "today" ? today : tomorrow;
   const {
     data: prices = [],
@@ -100,6 +103,29 @@ export default function App() {
   }, [prices, zone, settings]);
 
   const nowPrice = nowIndex !== null ? prices[nowIndex] : undefined;
+  const nowEffective = nowPrice
+    ? effectivePrice(nowPrice, zone, settings)
+    : null;
+
+  const windowEffective = useMemo(() => {
+    if (!bestWindow) return null;
+    return windowEffectiveAverage(
+      prices,
+      bestWindow.startIndex,
+      hours,
+      zone,
+      settings,
+    );
+  }, [bestWindow, prices, hours, zone, settings]);
+
+  // Viewing today: compare against right now. Viewing tomorrow (or no
+  // current-hour match): compare against the day's own average instead,
+  // since there's no "now" within a future day.
+  const savingsBaseline = nowEffective ?? avgEffective;
+  const savings =
+    windowEffective !== null && savingsBaseline !== null
+      ? Math.max(0, (savingsBaseline - windowEffective) * kwh)
+      : null;
 
   if (isPending) {
     return (
@@ -138,10 +164,10 @@ export default function App() {
             bestWindow ? { startIndex: bestWindow.startIndex, hours } : null
           }
         >
-          {nowPrice ? (
+          {nowEffective !== null ? (
             <>
               <span className="font-mono text-2xl font-medium whitespace-nowrap text-frost sm:text-[1.75rem]">
-                {formatOre(effectivePrice(nowPrice, zone, settings))}
+                {formatOre(nowEffective)}
               </span>
               <span className="mt-1.5 text-xs tracking-wide text-mist uppercase">
                 now
@@ -179,6 +205,11 @@ export default function App() {
         hours={hours}
         onHoursChange={(raw) => setHours(clampHours(raw))}
         maxHours={prices.length}
+        kwh={kwh}
+        onKwhChange={(raw) =>
+          setKwh(Number.isFinite(raw) && raw > 0 ? raw : 1)
+        }
+        savings={savings}
       />
 
       <PriceList

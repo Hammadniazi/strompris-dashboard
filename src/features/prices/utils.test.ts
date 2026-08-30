@@ -6,6 +6,7 @@ import {
   effectivePrice,
   priceLevel,
   pricePercent,
+  windowEffectiveAverage,
 } from "./utils";
 
 function makePrice(hour: number, nokPerKwh: number): HourlyPrice {
@@ -102,6 +103,30 @@ describe("cheapestWindow", () => {
     const window = cheapestWindow(dstPrices, 1);
     expect(window?.startIndex).toBe(24);
     expect(window?.avgPrice).toBeCloseTo(1);
+  });
+});
+
+describe("windowEffectiveAverage", () => {
+  const prices = [1, 2, 3, 4].map((v, i) => makePrice(i, v));
+
+  it("averages the effective price over the given window", () => {
+    // Hours 1–2 (spot 2, 3): (2*1.25+0.45 + 3*1.25+0.45) / 2 = (2.95+4.20)/2
+    const avg = windowEffectiveAverage(prices, 1, 2, "NO5", {
+      includeVat: true,
+      paslagOre: 0,
+      nettleieOre: 45,
+    });
+    expect(avg).toBeCloseTo(3.575);
+  });
+
+  it("returns null for an out-of-range window", () => {
+    expect(
+      windowEffectiveAverage(prices, 10, 2, "NO5", {
+        includeVat: true,
+        paslagOre: 0,
+        nettleieOre: 45,
+      }),
+    ).toBeNull();
   });
 });
 
