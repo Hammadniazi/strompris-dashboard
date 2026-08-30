@@ -123,4 +123,34 @@ describe("App", () => {
     expect(windowInput.value).toBe("1");
     expect(screen.getByText(/cheapest window/i)).toBeDefined();
   });
+
+  it("shows savings against the day's average when there's no current-hour match", async () => {
+    // Fixture dates are always in the past relative to the real clock, so
+    // nowIndex is null here — this exercises the average-price fallback
+    // used when viewing tomorrow (or if "now" ever falls outside the data).
+    localStorage.setItem("strompris.hours", "1");
+    server.use(
+      http.get(
+        /\/api\/v1\/prices\/\d{4}\/\d{2}-\d{2}_(\w+)\.json$/,
+        () =>
+          HttpResponse.json(
+            [1, 1, 5, 5, 5].map((price, i) => {
+              const h = String(i).padStart(2, "0");
+              return {
+                NOK_per_kWh: price,
+                EUR_per_kWh: price / 11,
+                EXR: 11,
+                time_start: `2026-01-01T${h}:00:00+01:00`,
+                time_end: `2026-01-01T${h}:59:59+01:00`,
+              };
+            }),
+          ),
+      ),
+    );
+    renderApp();
+
+    // Day avg effective: (1.70*2 + 6.70*3) / 5 = 4.70. Cheapest 1h = 1.70.
+    // (4.70 - 1.70) * 5 kWh (default) = 15 kr.
+    expect(await screen.findByText(/save ~15,00\s*kr/i)).toBeDefined();
+  });
 });

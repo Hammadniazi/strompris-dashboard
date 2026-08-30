@@ -38,6 +38,23 @@ export function cheapestWindow(
   return { startIndex: best.startIndex, avgPrice: best.sum / hours };
 }
 
+/** Average effective price over a specific window of hours. */
+export function windowEffectiveAverage(
+  prices: readonly HourlyPrice[],
+  startIndex: number,
+  hours: number,
+  zone: PriceZone,
+  settings: CostSettings,
+): number | null {
+  const slice = prices.slice(startIndex, startIndex + hours);
+  if (slice.length === 0) return null;
+  const sum = slice.reduce(
+    (total, p) => total + effectivePrice(p, zone, settings),
+    0,
+  );
+  return sum / slice.length;
+}
+
 /** Index of the hour `now` falls in, or null if `prices` doesn't cover it. */
 export function currentPriceIndex(
   prices: readonly HourlyPrice[],
