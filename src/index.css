@@ -5,7 +5,7 @@
   /* Fjord — deep, cool neutrals. Not a generic gray/black scale. */
   --color-fjord-950: oklch(0.18 0.028 252);
   --color-fjord-850: oklch(0.235 0.03 252);
-  --color-fjord-700: oklch(0.36 0.035 252);
+  --color-fjord-700: oklch(0.55 0.035 252);
   --color-frost: oklch(0.96 0.008 240);
   --color-mist: oklch(0.72 0.025 240);
 
