@@ -73,11 +73,11 @@ export function PriceGauge({
     p.NOK_per_kWh > max.NOK_per_kWh ? p : max,
   );
   const gaugeLabel = [
-    "Price gauge for the day",
-    `cheapest at ${osloHourLabel(cheapest.time_start)}, ${formatOre(cheapest.NOK_per_kWh)}`,
-    `most expensive at ${osloHourLabel(mostExpensive.time_start)}, ${formatOre(mostExpensive.NOK_per_kWh)}`,
+    "Prismåler for dagen",
+    `billigst kl. ${osloHourLabel(cheapest.time_start)}, ${formatOre(cheapest.NOK_per_kWh)}`,
+    `dyrest kl. ${osloHourLabel(mostExpensive.time_start)}, ${formatOre(mostExpensive.NOK_per_kWh)}`,
     currentIndex !== null
-      ? `currently ${osloHourLabel(prices[currentIndex]!.time_start)}, ${formatOre(prices[currentIndex]!.NOK_per_kWh)}`
+      ? `nå kl. ${osloHourLabel(prices[currentIndex]!.time_start)}, ${formatOre(prices[currentIndex]!.NOK_per_kWh)}`
       : null,
   ]
     .filter(Boolean)

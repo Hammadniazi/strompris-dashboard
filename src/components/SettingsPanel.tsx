@@ -10,7 +10,7 @@ export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
   return (
     <details className="group mt-8 rounded-xl border border-fjord-700 bg-fjord-850">
       <summary className="flex cursor-pointer list-none items-center justify-between rounded-t-xl px-4 py-3 text-sm font-medium text-frost select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cheap/50 sm:px-5 [&::-webkit-details-marker]:hidden">
-        Settings
+        Innstillinger
         <span className="text-mist transition-transform group-open:rotate-180">
           ▾
         </span>
@@ -25,10 +25,10 @@ export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
               onChange({ ...settings, includeVat: e.target.checked })
             }
           />
-          Include VAT
+          Inkluder MVA
         </label>
         <label className="flex items-center gap-2">
-          Markup (øre/kWh)
+          Påslag (øre/kWh)
           <input
             type="number"
             className={`w-16 ${inputClass}`}
@@ -39,7 +39,7 @@ export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
           />
         </label>
         <label className="flex items-center gap-2">
-          Grid rent (øre/kWh)
+          Nettleie (øre/kWh)
           <input
             type="number"
             className={`w-16 ${inputClass}`}
