@@ -15,7 +15,17 @@ export function osloToday(now = new Date()): string {
 
 /** Tomorrow in Oslo as 'YYYY-MM-DD'. */
 export function osloTomorrow(now = new Date()): string {
-  return osloToday(new Date(now.getTime() + 24 * 60 * 60 * 1000));
+  // Adding a literal 24h in ms to `now` and re-reading the Oslo date breaks
+  // across DST transitions, where an Oslo calendar day is 23 or 25 real
+  // hours long. Instead, parse today's Oslo date and step the *calendar*
+  // day forward in UTC — plain Y/M/D arithmetic that DST can't touch.
+  const [year, month, day] = osloToday(now).split("-").map(Number) as [
+    number,
+    number,
+    number,
+  ];
+  const next = new Date(Date.UTC(year, month - 1, day + 1));
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "UTC" }).format(next);
 }
 
 /** Tomorrow's prices publish ~13:00 Oslo time. */

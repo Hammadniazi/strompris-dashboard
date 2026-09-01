@@ -1,5 +1,9 @@
 # Strømpris
 
+[![CI](https://github.com/Hammadniazi/strompris-dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/Hammadniazi/strompris-dashboard/actions/workflows/ci.yml)
+
+**Live demo:** [strompris-dashboard.vercel.app](https://strompris-dashboard.vercel.app/)
+
 A live electricity spot-price checker for Norway. Shows hourly prices for
 today (and tomorrow, once published) across all five price zones, what you
 actually pay after VAT, supplier markup, and grid rent, and the cheapest
@@ -30,6 +34,7 @@ npm run preview   # preview the production build locally
 ## Testing
 
 ```bash
+npm run typecheck    # type-check only, no emit
 npm run test         # unit/component tests, watch mode
 npm run test:run     # unit/component tests, single run
 npm run test:coverage
@@ -41,3 +46,13 @@ npm run lint
 
 Vite, React 19, TypeScript, Tailwind CSS v4, TanStack Query, Zod. Tests with
 Vitest, Testing Library, MSW, and Playwright.
+
+## License
+
+[MIT](LICENSE)
+
+## Author
+
+**Hammad Khan** — [@Hammadniazi](https://github.com/Hammadniazi)
+
+Happy coding!
