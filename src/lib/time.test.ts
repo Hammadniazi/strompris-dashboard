@@ -29,6 +29,19 @@ describe("osloTomorrow", () => {
     expect(osloToday(now)).toBe("2026-08-15");
     expect(osloTomorrow(now)).toBe("2026-08-16");
   });
+
+  it("stays one calendar day ahead across the spring-forward DST gap", () => {
+    // 2026-03-29 is the night Oslo clocks jump 02:00 -> 03:00, so that Oslo
+    // calendar day is only 23 real hours long. Adding a literal 24h in ms
+    // overshoots past midnight on the 30th instead of landing on the 29th.
+    expect(osloTomorrow(new Date("2026-03-28T22:30:00Z"))).toBe("2026-03-29");
+  });
+
+  it("stays one calendar day ahead across the autumn fall-back", () => {
+    // 2026-10-25 is the night Oslo clocks repeat 02:00 -> 01:00, so that
+    // Oslo calendar day is 25 real hours long instead of 24.
+    expect(osloTomorrow(new Date("2026-10-24T21:30:00Z"))).toBe("2026-10-25");
+  });
 });
 
 describe("tomorrowIsPublished", () => {
