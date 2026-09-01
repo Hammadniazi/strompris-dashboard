@@ -3,11 +3,11 @@ import { useMemo, useState } from "react";
 import { z, ZodError } from "zod";
 import { CheapestWindowCard } from "@/components/CheapestWindowCard";
 import { DayToggle } from "@/components/DayToggle";
-import { Footer } from "@/components/Footer";
 import { PriceGauge } from "@/components/PriceGauge";
 import { PriceLevelLegend } from "@/components/PriceLevelLegend";
 import { PriceList } from "@/components/PriceList";
 import { SettingsPanel } from "@/components/SettingsPanel";
+import { SiteFooter } from "@/components/SiteFooter";
 import { ZonePicker } from "@/components/ZonePicker";
 import { fetchDayPrices, PriceUnavailableError } from "@/features/prices/api";
 import { priceZoneSchema, ZONE_META } from "@/features/prices/types";
@@ -80,6 +80,7 @@ export default function App() {
     data: prices = [],
     error,
     isPending,
+    dataUpdatedAt,
   } = useQuery({
     queryKey: ["prices", zone, date],
     queryFn: () => fetchDayPrices(date, zone),
@@ -249,7 +250,7 @@ export default function App() {
         )}
       </main>
 
-      <Footer />
+      <SiteFooter updatedAt={dataUpdatedAt} />
     </div>
   );
 }
