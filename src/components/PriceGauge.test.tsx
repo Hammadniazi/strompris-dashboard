@@ -55,7 +55,7 @@ describe("PriceGauge", () => {
     expect(container.querySelectorAll(".gauge-arc")).toHaveLength(25);
   });
 
-  it("uses a generic aria-label when there's no current hour", () => {
+  it("names the cheapest and most expensive hours in the aria-label, with no 'currently' when there's no current hour", () => {
     const { getByRole } = render(
       <PriceGauge
         prices={makeSequentialPrices(24)}
@@ -63,18 +63,24 @@ describe("PriceGauge", () => {
         bestWindow={null}
       />,
     );
-    expect(getByRole("img", { name: "Price gauge for the day" })).toBeDefined();
+    const label = getByRole("img").getAttribute("aria-label")!;
+    expect(label).toMatch(/^Price gauge for the day/);
+    // 24 sequential prices strictly increase, so hour 0 is cheapest and
+    // hour 23 is most expensive — assert the shape, not a hardcoded local
+    // hour, since Oslo's offset from the fixture's UTC timestamps varies.
+    expect(label).toMatch(/cheapest at \d{2}:\d{2}, [\d,.]+ øre/);
+    expect(label).toMatch(/most expensive at \d{2}:\d{2}, [\d,.]+ øre/);
+    expect(label).not.toContain("currently");
   });
 
-  it("draws the current-hour tick and names it in the aria-label", () => {
+  it("draws the current-hour tick and names its hour and price in the aria-label", () => {
     const prices = makeSequentialPrices(24);
     const { container, getByRole } = render(
       <PriceGauge prices={prices} currentIndex={5} bestWindow={null} />,
     );
     expect(container.querySelector("line")).not.toBeNull();
-    expect(
-      getByRole("img", { name: /Price gauge, currently \d{2}:\d{2}/ }),
-    ).toBeDefined();
+    const label = getByRole("img").getAttribute("aria-label")!;
+    expect(label).toMatch(/currently \d{2}:\d{2}, [\d,.]+ øre/);
   });
 
   it("draws the cheapest-window highlight arc when a window is given", () => {
