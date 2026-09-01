@@ -39,7 +39,7 @@ test("switches zones and fetches that zone's prices", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("spot 140 øre", { exact: true })).toBeVisible();
 
-  const zoneSelect = page.getByLabel(/zone/i);
+  const zoneSelect = page.getByLabel(/sone/i);
   await zoneSelect.selectOption("NO1 — Oslo");
 
   await expect(page.getByText("spot 200 øre", { exact: true })).toBeVisible();
@@ -56,6 +56,6 @@ test("shows an error message when the API returns a server error", async ({
   // The app's QueryClient retries failed requests with backoff (~7s total)
   // before surfacing an error, so this needs a longer-than-default timeout.
   await expect(
-    page.getByText("Couldn't load prices: Price API failed: 500"),
+    page.getByText("Kunne ikke laste priser: Price API failed: 500"),
   ).toBeVisible({ timeout: 15000 });
 });

@@ -48,7 +48,7 @@ function renderApp() {
 describe("App", () => {
   it("shows a loading state, then renders fetched spot prices", async () => {
     renderApp();
-    expect(screen.getByText(/fetching/i)).toBeDefined();
+    expect(screen.getByText(/henter/i)).toBeDefined();
 
     expect(await screen.findByText("spot 140 øre")).toBeDefined();
     expect(screen.getByText("spot 150 øre")).toBeDefined();
@@ -60,7 +60,7 @@ describe("App", () => {
     await screen.findByText("spot 140 øre");
 
     const user = userEvent.setup();
-    const zoneSelect = screen.getByLabelText<HTMLSelectElement>(/zone/i);
+    const zoneSelect = screen.getByLabelText<HTMLSelectElement>(/sone/i);
     await user.selectOptions(zoneSelect, "NO1 — Oslo");
 
     expect(await screen.findByText("spot 200 øre")).toBeDefined();
@@ -75,8 +75,8 @@ describe("App", () => {
     expect(screen.getByText("220 øre")).toBeDefined();
 
     const user = userEvent.setup();
-    await user.click(screen.getByText("Settings"));
-    const markupInput = screen.getByLabelText(/markup/i);
+    await user.click(screen.getByText("Innstillinger"));
+    const markupInput = screen.getByLabelText(/påslag/i);
     await user.clear(markupInput);
     await user.type(markupInput, "10");
 
@@ -86,15 +86,14 @@ describe("App", () => {
 
   it("shows a friendly message instead of raw JSON when the API response doesn't match the expected shape", async () => {
     server.use(
-      http.get(
-        /\/api\/v1\/prices\/\d{4}\/\d{2}-\d{2}_(\w+)\.json$/,
-        () => HttpResponse.json([{ NOK_per_kWh: "not-a-number" }]),
+      http.get(/\/api\/v1\/prices\/\d{4}\/\d{2}-\d{2}_(\w+)\.json$/, () =>
+        HttpResponse.json([{ NOK_per_kWh: "not-a-number" }]),
       ),
     );
     renderApp();
 
     expect(
-      await screen.findByText("Received unexpected data from the price API."),
+      await screen.findByText("Mottok uventede data fra pris-API-et."),
     ).toBeDefined();
     expect(screen.queryByText(/invalid_type/)).toBeNull();
   });
@@ -106,9 +105,9 @@ describe("App", () => {
 
     // Fixture day is only 3 hours long, so a persisted 5-hour window is invalid.
     expect(
-      screen.getByText("Enter a number of hours between 1 and 3."),
+      screen.getByText("Skriv inn et antall timer mellom 1 og 3."),
     ).toBeDefined();
-    expect(screen.getByLabelText(/window/i)).toBeDefined();
+    expect(screen.getByLabelText(/vindu/i)).toBeDefined();
   });
 
   it("clamps the Window input to at least 1 hour instead of letting it go blank", async () => {
@@ -116,12 +115,12 @@ describe("App", () => {
     await screen.findByText("spot 140 øre");
 
     const user = userEvent.setup();
-    const windowInput = screen.getByLabelText<HTMLInputElement>(/window/i);
+    const windowInput = screen.getByLabelText<HTMLInputElement>(/vindu/i);
     await user.clear(windowInput);
 
     // Clearing the field (empty -> 0) clamps to 1 instead of vanishing.
     expect(windowInput.value).toBe("1");
-    expect(screen.getByText(/cheapest window/i)).toBeDefined();
+    expect(screen.getByText(/billigste vindu/i)).toBeDefined();
   });
 
   it("shows savings against the day's average when there's no current-hour match", async () => {
@@ -130,27 +129,25 @@ describe("App", () => {
     // used when viewing tomorrow (or if "now" ever falls outside the data).
     localStorage.setItem("strompris.hours", "1");
     server.use(
-      http.get(
-        /\/api\/v1\/prices\/\d{4}\/\d{2}-\d{2}_(\w+)\.json$/,
-        () =>
-          HttpResponse.json(
-            [1, 1, 5, 5, 5].map((price, i) => {
-              const h = String(i).padStart(2, "0");
-              return {
-                NOK_per_kWh: price,
-                EUR_per_kWh: price / 11,
-                EXR: 11,
-                time_start: `2026-01-01T${h}:00:00+01:00`,
-                time_end: `2026-01-01T${h}:59:59+01:00`,
-              };
-            }),
-          ),
+      http.get(/\/api\/v1\/prices\/\d{4}\/\d{2}-\d{2}_(\w+)\.json$/, () =>
+        HttpResponse.json(
+          [1, 1, 5, 5, 5].map((price, i) => {
+            const h = String(i).padStart(2, "0");
+            return {
+              NOK_per_kWh: price,
+              EUR_per_kWh: price / 11,
+              EXR: 11,
+              time_start: `2026-01-01T${h}:00:00+01:00`,
+              time_end: `2026-01-01T${h}:59:59+01:00`,
+            };
+          }),
+        ),
       ),
     );
     renderApp();
 
     // Day avg effective: (1.70*2 + 6.70*3) / 5 = 4.70. Cheapest 1h = 1.70.
     // (4.70 - 1.70) * 5 kWh (default) = 15 kr.
-    expect(await screen.findByText(/save ~15,00\s*kr/i)).toBeDefined();
+    expect(await screen.findByText(/spar ~15,00\s*kr/i)).toBeDefined();
   });
 });

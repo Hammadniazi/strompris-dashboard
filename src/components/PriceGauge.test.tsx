@@ -64,13 +64,13 @@ describe("PriceGauge", () => {
       />,
     );
     const label = getByRole("img").getAttribute("aria-label")!;
-    expect(label).toMatch(/^Price gauge for the day/);
+    expect(label).toMatch(/^Prismåler for dagen/);
     // 24 sequential prices strictly increase, so hour 0 is cheapest and
     // hour 23 is most expensive — assert the shape, not a hardcoded local
     // hour, since Oslo's offset from the fixture's UTC timestamps varies.
-    expect(label).toMatch(/cheapest at \d{2}:\d{2}, [\d,.]+ øre/);
-    expect(label).toMatch(/most expensive at \d{2}:\d{2}, [\d,.]+ øre/);
-    expect(label).not.toContain("currently");
+    expect(label).toMatch(/billigst kl\. \d{2}:\d{2}, [\d,.]+ øre/);
+    expect(label).toMatch(/dyrest kl\. \d{2}:\d{2}, [\d,.]+ øre/);
+    expect(label).not.toContain("nå kl.");
   });
 
   it("draws the current-hour tick and names its hour and price in the aria-label", () => {
@@ -80,7 +80,7 @@ describe("PriceGauge", () => {
     );
     expect(container.querySelector("line")).not.toBeNull();
     const label = getByRole("img").getAttribute("aria-label")!;
-    expect(label).toMatch(/currently \d{2}:\d{2}, [\d,.]+ øre/);
+    expect(label).toMatch(/nå kl\. \d{2}:\d{2}, [\d,.]+ øre/);
   });
 
   it("draws the cheapest-window highlight arc when a window is given", () => {

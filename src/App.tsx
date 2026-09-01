@@ -36,14 +36,24 @@ const DEFAULT_SETTINGS: CostSettings = {
 function errorMessage(error: Error): string {
   if (error instanceof PriceUnavailableError) {
     return error.reason === "not-published"
-      ? "Not published yet. Tomorrow's prices land around 13:00."
-      : "No data available before December 2021.";
+      ? "Ikke publisert ennå. Morgendagens priser kommer rundt kl. 13:00."
+      : "Ingen data tilgjengelig før desember 2021.";
   }
   if (error instanceof ZodError) {
-    return "Received unexpected data from the price API.";
+    return "Mottok uventede data fra pris-API-et.";
   }
-  return `Couldn't load prices: ${error.message}`;
+  return `Kunne ikke laste priser: ${error.message}`;
 }
+
+const FETCHING_LABEL = {
+  today: "Henter dagens priser…",
+  tomorrow: "Henter morgendagens priser…",
+} as const;
+
+const AVERAGE_LABEL = {
+  today: "Snitt i dag",
+  tomorrow: "Snitt i morgen",
+} as const;
 
 export default function App() {
   const today = osloToday();
@@ -141,7 +151,7 @@ export default function App() {
 
         {!tomorrowIsPublished() && (
           <p className="mt-2 text-xs text-mist">
-            Tomorrow's prices publish ~13:00 Oslo time.
+            Morgendagens priser publiseres ca. kl. 13:00 (norsk tid).
           </p>
         )}
 
@@ -150,7 +160,7 @@ export default function App() {
             className="mt-16 text-center font-mono text-sm text-mist"
             role="status"
           >
-            Fetching {day}'s prices…
+            {FETCHING_LABEL[day]}
           </p>
         ) : error ? (
           <p
@@ -181,7 +191,7 @@ export default function App() {
                       {formatOre(nowEffective)}
                     </span>
                     <span className="mt-1.5 text-xs tracking-wide text-mist uppercase">
-                      now
+                      nå
                     </span>
                   </>
                 ) : (
@@ -201,7 +211,7 @@ export default function App() {
 
                 {avgEffective !== null && (
                   <p className="text-sm text-mist">
-                    Average {day}{" "}
+                    {AVERAGE_LABEL[day]}{" "}
                     <span className="font-mono font-medium text-frost">
                       {formatNok(avgEffective)}/kWh
                     </span>

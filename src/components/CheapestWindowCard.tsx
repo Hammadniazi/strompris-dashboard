@@ -30,7 +30,7 @@ export function CheapestWindowCard({
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div aria-live="polite" aria-atomic="true">
           <h2 className="text-xs tracking-wide text-cheap uppercase">
-            Cheapest window
+            Billigste vindu
           </h2>
           {windowRange && bestWindow ? (
             <>
@@ -39,23 +39,23 @@ export function CheapestWindowCard({
                 {osloHourLabel(windowRange.end)}
               </p>
               <p className="mt-0.5 text-sm text-mist">
-                avg {formatOre(bestWindow.avgPrice)} spot
+                snitt {formatOre(bestWindow.avgPrice)} spot
               </p>
               {savings !== null && savings >= 0.01 && (
                 <p className="mt-1 text-sm font-medium text-cheap">
-                  Save ~{formatNok(savings)} using {kwh} kWh here instead
+                  Spar ~{formatNok(savings)} ved å bruke {kwh} kWh her i stedet
                 </p>
               )}
             </>
           ) : (
             <p className="mt-1 text-sm text-mist">
-              Enter a number of hours between 1 and {maxHours}.
+              Skriv inn et antall timer mellom 1 og {maxHours}.
             </p>
           )}
         </div>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-mist">
           <label className="flex items-center gap-2">
-            Window
+            Vindu
             <input
               type="number"
               min={1}
@@ -64,10 +64,10 @@ export function CheapestWindowCard({
               value={hours}
               onChange={(e) => onHoursChange(Number(e.target.value))}
             />
-            hours
+            timer
           </label>
           <label className="flex items-center gap-2">
-            Using
+            Bruker
             <input
               type="number"
               min={0.1}

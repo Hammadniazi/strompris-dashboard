@@ -55,13 +55,13 @@ for (const viewport of VIEWPORTS) {
       await expect(
         page.getByRole("heading", { name: "Strømpris" }),
       ).toBeVisible();
-      await expect(page.getByLabel(/zone/i)).toBeVisible();
-      await expect(page.getByRole("button", { name: "today" })).toBeVisible();
-      await expect(page.getByText(/cheapest window/i)).toBeVisible();
-      await expect(page.getByLabel(/window/i)).toBeVisible();
-      await expect(page.getByLabel(/using/i)).toBeVisible();
+      await expect(page.getByLabel(/sone/i)).toBeVisible();
+      await expect(page.getByRole("button", { name: "I dag" })).toBeVisible();
+      await expect(page.getByText(/billigste vindu/i)).toBeVisible();
+      await expect(page.getByLabel(/vindu/i)).toBeVisible();
+      await expect(page.getByLabel(/bruker/i)).toBeVisible();
       await expect(
-        page.locator("summary", { hasText: "Settings" }),
+        page.locator("summary", { hasText: "Innstillinger" }),
       ).toBeVisible();
 
       await page.screenshot({
@@ -78,11 +78,11 @@ for (const viewport of VIEWPORTS) {
       );
 
       await page.goto("/");
-      await page.locator("summary", { hasText: "Settings" }).click();
+      await page.locator("summary", { hasText: "Innstillinger" }).click();
 
-      await expect(page.getByLabel(/include vat/i)).toBeVisible();
-      await expect(page.getByLabel(/markup/i)).toBeVisible();
-      await expect(page.getByLabel(/grid rent/i)).toBeVisible();
+      await expect(page.getByLabel(/inkluder mva/i)).toBeVisible();
+      await expect(page.getByLabel(/påslag/i)).toBeVisible();
+      await expect(page.getByLabel(/nettleie/i)).toBeVisible();
 
       const { scrollWidth, clientWidth } = await page.evaluate(() => ({
         scrollWidth: document.documentElement.scrollWidth,

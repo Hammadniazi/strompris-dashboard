@@ -3,7 +3,7 @@ export function Footer() {
     <footer className="mx-auto max-w-3xl px-4 pt-6 pb-8 text-center text-xs text-mist sm:px-8 sm:text-left">
       <div className="space-y-1.5 border-t border-fjord-700 pt-6">
         <p>
-          Spot prices from{" "}
+          Spotpriser fra{" "}
           <a
             href="https://www.hvakosterstrommen.no"
             target="_blank"
@@ -25,13 +25,13 @@ export function Footer() {
                 strokeLinejoin="round"
               />
             </svg>
-            <span className="sr-only"> (opens in a new tab)</span>
+            <span className="sr-only"> (åpnes i en ny fane)</span>
           </a>
           .
         </p>
         <p>
-          Grid rent and markup are placeholders — adjust them in Settings to
-          match your own grid operator and contract.
+          Nettleie og påslag er plassholdere — juster dem i Innstillinger for å
+          matche din egen nettleverandør og avtale.
         </p>
       </div>
     </footer>

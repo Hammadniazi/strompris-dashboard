@@ -17,7 +17,7 @@ export function ZonePicker({ zone, onChange }: ZonePickerProps) {
       </p>
       <div className="relative">
         <select
-          aria-label="Zone"
+          aria-label="Sone"
           className="h-11 appearance-none rounded-md border border-fjord-700 bg-fjord-850 pr-9 pl-3 text-sm text-frost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cheap/50"
           value={zone}
           onChange={(e) => onChange(e.target.value as PriceZone)}
