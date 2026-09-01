@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { HourlyPrice } from "@/features/prices/types";
 import { priceLevel, type PriceLevel } from "@/features/prices/utils";
+import { formatOre } from "@/lib/format";
 import { osloHourLabel } from "@/lib/time";
 
 const SIZE = 330;
@@ -65,16 +66,31 @@ export function PriceGauge({
   if (n === 0) return null;
   const step = 360 / n;
 
+  const cheapest = prices.reduce((min, p) =>
+    p.NOK_per_kWh < min.NOK_per_kWh ? p : min,
+  );
+  const mostExpensive = prices.reduce((max, p) =>
+    p.NOK_per_kWh > max.NOK_per_kWh ? p : max,
+  );
+  const gaugeLabel = [
+    "Price gauge for the day",
+    `cheapest at ${osloHourLabel(cheapest.time_start)}, ${formatOre(cheapest.NOK_per_kWh)}`,
+    `most expensive at ${osloHourLabel(mostExpensive.time_start)}, ${formatOre(mostExpensive.NOK_per_kWh)}`,
+    currentIndex !== null
+      ? `currently ${osloHourLabel(prices[currentIndex]!.time_start)}, ${formatOre(prices[currentIndex]!.NOK_per_kWh)}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(". ");
+
   return (
     <div
       className="relative shrink-0"
       style={{ width: SIZE, height: SIZE }}
       role="img"
-      aria-label={
-        currentIndex !== null
-          ? `Price gauge, currently ${osloHourLabel(prices[currentIndex]!.time_start)}`
-          : "Price gauge for the day"
-      }
+      aria-label={gaugeLabel}
+      aria-live="polite"
+      aria-atomic="true"
     >
       <svg
         width={SIZE}

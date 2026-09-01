@@ -47,10 +47,6 @@ export function PriceList({
               <span className="w-12 shrink-0 font-mono text-sm text-mist">
                 {osloHourLabel(p.time_start)}
               </span>
-              <span
-                aria-hidden="true"
-                className={`h-1.5 w-1.5 shrink-0 rounded-full ${LEVEL_DOT[level]}`}
-              />
               <span className="hidden flex-1 sm:block">
                 <span
                   className={`block h-1.5 rounded-full ${LEVEL_DOT[level]} opacity-40`}

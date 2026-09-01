@@ -28,7 +28,7 @@ export function CheapestWindowCard({
   return (
     <section className="mt-8 rounded-xl border border-cheap/30 bg-cheap/5 p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
+        <div aria-live="polite" aria-atomic="true">
           <h2 className="text-xs tracking-wide text-cheap uppercase">
             Cheapest window
           </h2>

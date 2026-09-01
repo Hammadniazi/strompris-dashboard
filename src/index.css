@@ -6,6 +6,9 @@
   --color-fjord-950: oklch(0.18 0.028 252);
   --color-fjord-850: oklch(0.235 0.03 252);
   --color-fjord-700: oklch(0.55 0.035 252);
+  /* Dedicated "selected" background — frost text on fjord-700 only hits
+     4.31:1 (fails 4.5:1 for normal-weight 14px text); this hits 5.81:1. */
+  --color-selected: oklch(0.48 0.032 252);
   --color-frost: oklch(0.96 0.008 240);
   --color-mist: oklch(0.72 0.025 240);
 
@@ -52,7 +55,9 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
