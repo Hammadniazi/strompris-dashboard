@@ -4,7 +4,14 @@ import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import App from "./App";
+
+/** Exposes the router's current path so tests can assert the URL synced. */
+function LocationSpy() {
+  const location = useLocation();
+  return <div data-testid="location-spy">{location.pathname}</div>;
+}
 
 function makeDayResponse(basePrice: number) {
   return Array.from({ length: 3 }, (_, i) => {
@@ -34,13 +41,18 @@ beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-function renderApp() {
+function renderApp(initialPath = "/") {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <App />
+      <MemoryRouter initialEntries={[initialPath]}>
+        <LocationSpy />
+        <Routes>
+          <Route path="/:zone?" element={<App />} />
+        </Routes>
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 }
@@ -65,6 +77,17 @@ describe("App", () => {
 
     expect(await screen.findByText("spot 200 øre")).toBeDefined();
     expect(zoneSelect.value).toBe("NO1");
+    expect(screen.getByTestId("location-spy").textContent).toBe("/no1");
+  });
+
+  it("adopts a valid zone from the URL on load and normalizes an invalid one", async () => {
+    renderApp("/no1");
+    expect(await screen.findByText("spot 200 øre")).toBeDefined();
+    expect(screen.getByLabelText<HTMLSelectElement>(/sone/i).value).toBe("NO1");
+
+    // Bare "/" (no zone segment) redirects to the current zone's URL
+    // instead of leaving the URL out of sync with what's on screen.
+    expect(screen.getByTestId("location-spy").textContent).toBe("/no1");
   });
 
   it("recalculates the effective price when markup changes", async () => {

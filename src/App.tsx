@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { z, ZodError } from "zod";
 import { CheapestWindowCard } from "@/components/CheapestWindowCard";
 import { DayToggle } from "@/components/DayToggle";
+import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import { PriceGauge } from "@/components/PriceGauge";
 import { PriceLevelLegend } from "@/components/PriceLevelLegend";
 import { PriceList } from "@/components/PriceList";
@@ -10,7 +12,11 @@ import { SettingsPanel } from "@/components/SettingsPanel";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ZonePicker } from "@/components/ZonePicker";
 import { fetchDayPrices, PriceUnavailableError } from "@/features/prices/api";
-import { priceZoneSchema, ZONE_META } from "@/features/prices/types";
+import {
+  priceZoneSchema,
+  ZONE_META,
+  type PriceZone,
+} from "@/features/prices/types";
 import type { CostSettings } from "@/features/prices/utils";
 import {
   cheapestWindow,
@@ -75,6 +81,27 @@ export default function App() {
     3,
   );
   const [kwh, setKwh] = usePersistedState("strompris.kwh", kwhSchema, 5);
+  const settingsRef = useRef<HTMLDetailsElement>(null);
+
+  // The URL is the source of truth for sharing: a valid /:zone segment wins
+  // on load and gets persisted; an invalid or missing one gets normalized to
+  // the current zone via a history-replacing redirect (no back-button spam).
+  const params = useParams<{ zone?: string }>();
+  const navigate = useNavigate();
+  useEffect(() => {
+    const parsed = priceZoneSchema.safeParse(params.zone?.toUpperCase());
+    if (parsed.success) {
+      if (parsed.data !== zone) setZone(parsed.data);
+    } else {
+      void navigate(`/${zone.toLowerCase()}`, { replace: true });
+    }
+  }, [params.zone, zone, navigate, setZone]);
+
+  function handleZoneChange(newZone: PriceZone) {
+    setZone(newZone);
+    void navigate(`/${newZone.toLowerCase()}`, { replace: true });
+  }
+
   const date = day === "today" ? today : tomorrow;
   const {
     data: prices = [],
@@ -104,6 +131,19 @@ export default function App() {
   function clampHours(raw: number): number {
     if (!Number.isFinite(raw)) return 1;
     return Math.min(Math.max(Math.trunc(raw), 1), Math.max(prices.length, 1));
+  }
+
+  function openSettings() {
+    const el = settingsRef.current;
+    if (!el) return;
+    el.open = true;
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    el.scrollIntoView({
+      behavior: reducedMotion ? "auto" : "smooth",
+      block: "start",
+    });
   }
 
   const avgEffective = useMemo(() => {
@@ -157,12 +197,7 @@ export default function App() {
         )}
 
         {isPending ? (
-          <p
-            className="mt-16 text-center font-mono text-sm text-mist"
-            role="status"
-          >
-            {FETCHING_LABEL[day]}
-          </p>
+          <LoadingSkeleton label={FETCHING_LABEL[day]} />
         ) : error ? (
           <p
             className="mx-auto mt-16 max-w-sm text-center text-sm text-expensive"
@@ -194,6 +229,16 @@ export default function App() {
                     <span className="mt-1.5 text-xs tracking-wide text-mist uppercase">
                       nå
                     </span>
+                    <p className="mt-1 text-[11px] text-mist">
+                      inkl. {settings.nettleieOre} øre nettleie ·{" "}
+                      <button
+                        type="button"
+                        onClick={openSettings}
+                        className="rounded-xs underline underline-offset-2 hover:text-frost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cheap/50"
+                      >
+                        endre
+                      </button>
+                    </p>
                   </>
                 ) : (
                   <>
@@ -208,7 +253,7 @@ export default function App() {
               </PriceGauge>
 
               <div className="w-full flex-1 space-y-4 text-center sm:text-left">
-                <ZonePicker zone={zone} onChange={setZone} />
+                <ZonePicker zone={zone} onChange={handleZoneChange} />
 
                 {avgEffective !== null && (
                   <p className="text-sm text-mist">
@@ -245,7 +290,11 @@ export default function App() {
               hours={hours}
             />
 
-            <SettingsPanel settings={settings} onChange={setSettings} />
+            <SettingsPanel
+              ref={settingsRef}
+              settings={settings}
+              onChange={setSettings}
+            />
           </>
         )}
       </main>

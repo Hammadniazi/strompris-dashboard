@@ -1,14 +1,19 @@
+import type { Ref } from "react";
 import type { CostSettings } from "@/features/prices/utils";
 import { inputClass } from "./shared";
 
 export interface SettingsPanelProps {
   settings: CostSettings;
   onChange: (settings: CostSettings) => void;
+  ref?: Ref<HTMLDetailsElement>;
 }
 
-export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
+export function SettingsPanel({ settings, onChange, ref }: SettingsPanelProps) {
   return (
-    <details className="group mt-8 rounded-xl border border-fjord-700 bg-fjord-850">
+    <details
+      ref={ref}
+      className="group mt-8 rounded-xl border border-fjord-700 bg-fjord-850"
+    >
       <summary className="flex cursor-pointer list-none items-center justify-between rounded-t-xl px-4 py-3 text-sm font-medium text-frost select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cheap/50 sm:px-5 [&::-webkit-details-marker]:hidden">
         Innstillinger
         <span className="text-mist transition-transform group-open:rotate-180">

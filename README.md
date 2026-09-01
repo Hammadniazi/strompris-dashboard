@@ -4,6 +4,8 @@
 
 **Live demo:** [strompris-dashboard.vercel.app](https://strompris-dashboard.vercel.app/)
 
+![Screenshot of the Strømpris dashboard showing hourly electricity prices and the cheapest window to use them](docs/screenshot.png)
+
 A live electricity spot-price checker for Norway. Shows hourly prices for
 today (and tomorrow, once published) across all five price zones, what you
 actually pay after VAT, supplier markup, and grid rent, and the cheapest
@@ -21,6 +23,7 @@ API — no API key or backend required.
 - Cheapest N-hour window finder
 - Today/tomorrow toggle (tomorrow's prices publish ~13:00 Oslo time)
 - Zone, cost settings, and window length persist across visits
+- Shareable per-zone URLs (e.g. `/no1`)
 
 ## Running it
 
@@ -54,5 +57,3 @@ Vitest, Testing Library, MSW, and Playwright.
 ## Author
 
 **Hammad Khan** — [@Hammadniazi](https://github.com/Hammadniazi)
-
-Happy coding!

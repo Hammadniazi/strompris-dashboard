@@ -4,11 +4,15 @@ import { priceLevel, type PriceLevel } from "@/features/prices/utils";
 import { formatOre } from "@/lib/format";
 import { osloHourLabel } from "@/lib/time";
 
-const SIZE = 330;
+export const SIZE = 330;
 const CENTER = SIZE / 2;
 const R_INNER = 90;
 const R_OUTER = 148;
 const GAP_DEG = 1.4;
+
+// Norway's DST transition only ever touches the 02:00-03:00 hour, so each of
+// these still occurs exactly once even on a 23- or 25-hour day.
+const HOUR_TICKS = ["00:00", "06:00", "12:00", "18:00"] as const;
 
 const LEVEL_FILL: Record<PriceLevel, string> = {
   cheap: "var(--color-cheap)",
@@ -65,6 +69,11 @@ export function PriceGauge({
   const n = prices.length;
   if (n === 0) return null;
   const step = 360 / n;
+
+  const ticks = HOUR_TICKS.flatMap((label) => {
+    const i = prices.findIndex((p) => osloHourLabel(p.time_start) === label);
+    return i === -1 ? [] : [{ i, label }];
+  });
 
   const cheapest = prices.reduce((min, p) =>
     p.NOK_per_kWh < min.NOK_per_kWh ? p : min,
@@ -141,6 +150,22 @@ export function PriceGauge({
             strokeLinecap="round"
           />
         )}
+        {ticks.map(({ i, label }) => {
+          const { x, y } = polarToCartesian(R_OUTER + 14, i * step);
+          return (
+            <text
+              key={label}
+              x={x}
+              y={y}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fill="var(--color-mist)"
+              style={{ fontFamily: "var(--font-mono)", fontSize: 10 }}
+            >
+              {label.slice(0, 2)}
+            </text>
+          );
+        })}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
         <div
