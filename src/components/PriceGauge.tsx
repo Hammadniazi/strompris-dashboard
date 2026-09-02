@@ -95,15 +95,15 @@ export function PriceGauge({
   return (
     <div
       className="relative shrink-0"
-      style={{ width: SIZE, height: SIZE }}
+      style={{ width: `min(100%, ${SIZE}px)`, aspectRatio: "1 / 1" }}
       role="img"
       aria-label={gaugeLabel}
       aria-live="polite"
       aria-atomic="true"
     >
       <svg
-        width={SIZE}
-        height={SIZE}
+        width="100%"
+        height="100%"
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         aria-hidden="true"
       >
