@@ -1,6 +1,6 @@
 import type { Ref } from "react";
 import type { CostSettings } from "@/features/prices/utils";
-import { inputClass } from "./shared";
+import { inputClass, selectOnFocus } from "./shared";
 
 export interface SettingsPanelProps {
   settings: CostSettings;
@@ -41,6 +41,7 @@ export function SettingsPanel({ settings, onChange, ref }: SettingsPanelProps) {
             onChange={(e) =>
               onChange({ ...settings, paslagOre: Number(e.target.value) })
             }
+            onFocus={selectOnFocus}
           />
         </label>
         <label className="flex items-center gap-2">
@@ -52,6 +53,7 @@ export function SettingsPanel({ settings, onChange, ref }: SettingsPanelProps) {
             onChange={(e) =>
               onChange({ ...settings, nettleieOre: Number(e.target.value) })
             }
+            onFocus={selectOnFocus}
           />
         </label>
       </div>

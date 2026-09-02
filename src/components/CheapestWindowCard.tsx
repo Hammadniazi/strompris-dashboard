@@ -1,7 +1,7 @@
 import type { HourlyPrice } from "@/features/prices/types";
 import { formatNok, formatOre } from "@/lib/format";
 import { osloHourLabel } from "@/lib/time";
-import { inputClass } from "./shared";
+import { inputClass, selectOnFocus } from "./shared";
 
 export interface CheapestWindowCardProps {
   bestWindow: { avgPrice: number } | null;
@@ -63,6 +63,7 @@ export function CheapestWindowCard({
               className={`w-14 ${inputClass}`}
               value={hours}
               onChange={(e) => onHoursChange(Number(e.target.value))}
+              onFocus={selectOnFocus}
             />
             timer
           </label>
@@ -75,6 +76,7 @@ export function CheapestWindowCard({
               className={`w-16 ${inputClass}`}
               value={kwh}
               onChange={(e) => onKwhChange(Number(e.target.value))}
+              onFocus={selectOnFocus}
             />
             kWh
           </label>
