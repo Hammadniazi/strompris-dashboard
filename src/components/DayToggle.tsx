@@ -14,7 +14,7 @@ export function DayToggle({ day, onChange }: DayToggleProps) {
           type="button"
           aria-pressed={day === d}
           onClick={() => onChange(d)}
-          className={`flex h-9 items-center justify-center rounded-full px-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cheap/50 ${
+          className={`flex h-11 items-center justify-center rounded-full px-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cheap/50 ${
             day === d ? "bg-selected text-frost" : "text-mist hover:text-frost"
           }`}
         >

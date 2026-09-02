@@ -234,7 +234,7 @@ export default function App() {
                       <button
                         type="button"
                         onClick={openSettings}
-                        className="rounded-xs underline underline-offset-2 hover:text-frost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cheap/50"
+                        className="-m-2 rounded-xs p-2 underline underline-offset-2 hover:text-frost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cheap/50"
                       >
                         endre
                       </button>
