@@ -29,3 +29,7 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+
+# Claude Code local skill config - not part of the app
+.agents/
+skills-lock.json
